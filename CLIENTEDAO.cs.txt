@@ -1,0 +1,112 @@
+
+using MySql.Data.MySqlClient;
+using System;
+using System.Data;
+
+public class ClienteDAO // Data Access Object para a tabela Cliente
+{
+    private const string ConnectionString = 
+        "server=localhost;user id=root;password= root ;database=trabalho_de_banco_de_dados";
+
+    public void InserirCliente(string nome, string documento, int? idVeiculo)
+    {
+        
+        string query = "INSERT INTO Cliente (nome, documento, id_veiculo) VALUES (@nome, @documento, @idVeiculo)";
+
+        using (MySqlConnection connection = new MySqlConnection(ConnectionString))
+        {
+            using (MySqlCommand command = new MySqlCommand(query, connection))
+            {
+                command.Parameters.AddWithValue("@nome", nome);
+                command.Parameters.AddWithValue("@documento", documento);
+                
+               
+                if (idVeiculo.HasValue)
+                {
+                    command.Parameters.AddWithValue("@idVeiculo", idVeiculo.Value);
+                }
+                else
+                {
+                    command.Parameters.AddWithValue("@idVeiculo", DBNull.Value);
+                }
+
+                try
+                {
+                    connection.Open();
+                    command.ExecuteNonQuery();
+                    Console.WriteLine($"\n✅ Cliente '{nome}' inserido com sucesso!");
+                }
+                catch (MySqlException ex)
+                {
+                    Console.WriteLine($"\n❌ Erro ao inserir cliente: {ex.Message}");
+                    Console.WriteLine($"   Verifique se o veículo com id={idVeiculo} existe ou se o documento é único.");
+                }
+            }
+        }
+    }
+
+    
+    public DataTable ConsultarTodosClientes()
+    {
+        DataTable clientesTable = new DataTable();
+        string query = "SELECT id, nome, documento, id_veiculo FROM Cliente ORDER BY id DESC";
+
+        using (MySqlConnection connection = new MySqlConnection(ConnectionString))
+        {
+            using (MySqlCommand command = new MySqlCommand(query, connection))
+            {
+                try
+                {
+                    connection.Open();
+                    // O MySqlDataReader lê os resultados diretamente do banco
+                    using (MySqlDataReader reader = command.ExecuteReader())
+                    {
+                        clientesTable.Load(reader);
+                    }
+                }
+                catch (MySqlException ex)
+                {
+                    Console.WriteLine($"\n❌ Erro ao consultar clientes: {ex.Message}");
+                }
+            }
+        }
+        return clientesTable;
+    }
+
+   
+    public void AtualizarCliente(int id, string novoNome, string novoDocumento)
+    {
+        string query = "UPDATE Cliente SET nome = @nome, documento = @documento WHERE id = @id";
+
+        using (MySqlConnection connection = new MySqlConnection(ConnectionString))
+        {
+            using (MySqlCommand command = new MySqlCommand(query, connection))
+            {
+                command.Parameters.AddWithValue("@nome", novoNome);
+                command.Parameters.AddWithValue("@documento", novoDocumento);
+                command.Parameters.AddWithValue("@id", id);
+
+                try
+                {
+                    connection.Open();
+                    int linhasAfetadas = command.ExecuteNonQuery();
+                    
+                    if (linhasAfetadas > 0)
+                    {
+                        Console.WriteLine($"\n✅ Cliente ID {id} atualizado com sucesso.");
+                    }
+                    else
+                    {
+                        Console.WriteLine($"\n⚠️ Nenhum cliente encontrado com ID {id} para atualizar.");
+                    }
+                }
+                catch (MySqlException ex)
+                {
+                    Console.WriteLine($"\n❌ Erro ao atualizar cliente: {ex.Message}");
+                }
+            }
+        }
+    }
+
+    
+  
