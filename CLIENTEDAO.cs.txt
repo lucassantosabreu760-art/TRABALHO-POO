@@ -108,5 +108,37 @@ public class ClienteDAO // Data Access Object para a tabela Cliente
         }
     }
 
+  public void DeletarCliente(int id)
+    {
+        string query = "DELETE FROM Cliente WHERE id = @id";
+
+        using (MySqlConnection connection = new MySqlConnection(ConnectionString))
+        {
+            using (MySqlCommand command = new MySqlCommand(query, connection))
+            {
+                command.Parameters.AddWithValue("@id", id);
+
+                try
+                {
+                    connection.Open();
+                    int linhasAfetadas = command.ExecuteNonQuery();
+
+                    if (linhasAfetadas > 0)
+                    {
+                        Console.WriteLine($"\n✅ Cliente ID {id} deletado com sucesso.");
+                    }
+                    else
+                    {
+                        Console.WriteLine($"\n⚠️ Nenhum cliente encontrado com ID {id} para deletar.");
+                    }
+                }
+                catch (MySqlException ex)
+                {
+                    Console.WriteLine($"\n❌ Erro ao deletar cliente: {ex.Message}");
+                }
+            }
+        }
+    }
+}
     
   
