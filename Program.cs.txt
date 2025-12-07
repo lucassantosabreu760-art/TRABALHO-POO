@@ -1,0 +1,67 @@
+using System;
+using System.Data;
+
+public class Program
+{
+    public static void Main(string[] args)
+    {
+        
+        ClienteDAO clienteDao = new ClienteDAO();
+        
+       
+        string nomeTeste = "Cliente ADO.NET";
+        string docTeste = "11122233300";
+        int idDoVeiculoExistente = 1; // ID que DEVE existir na tabela Veiculo
+        int idParaOperacao = 0; 
+        
+        
+        Console.WriteLine("\n=================================");
+        Console.WriteLine("        1. OPERAÇÃO: CREATE (INSERT)");
+        Console.WriteLine("=================================");
+        clienteDao.InserirCliente(nomeTeste, docTeste, idDoVeiculoExistente);
+
+      
+        DataTable todosClientes = clienteDao.ConsultarTodosClientes();
+        if (todosClientes.Rows.Count > 0)
+        {
+            
+            idParaOperacao = Convert.ToInt32(todosClientes.Rows[0]["id"]);
+            Console.WriteLine($"\n[INFO] ID do novo registro para operações futuras: {idParaOperacao}");
+        }
+
+      
+        Console.WriteLine("\n=================================");
+        Console.WriteLine("        2. OPERAÇÃO: READ (SELECT)");
+        Console.WriteLine("=================================");
+        Console.WriteLine("--- Lista de Clientes Atuais ---");
+        
+      
+        foreach (DataRow row in todosClientes.Rows)
+        {
+            Console.WriteLine($"ID: {row["id"]} | Nome: {row["nome"]} | Doc: {row["documento"]}");
+        }
+
+       
+        if (idParaOperacao != 0)
+        {
+            Console.WriteLine("\n=================================");
+            Console.WriteLine("        3. OPERAÇÃO: UPDATE");
+            Console.WriteLine("=================================");
+            string novoNome = "Cliente Atualizado";
+            string novoDoc = "44455566677";
+            clienteDao.AtualizarCliente(idParaOperacao, novoNome, novoDoc);
+        }
+        
+       
+        if (idParaOperacao != 0)
+        {
+            Console.WriteLine("\n=================================");
+            Console.WriteLine("        4. OPERAÇÃO: DELETE");
+            Console.WriteLine("=================================");
+            clienteDao.DeletarCliente(idParaOperacao);
+        }
+        
+        Console.WriteLine("\n--- Fim do Teste CRUD ---");
+        Console.ReadKey();
+    }
+}
